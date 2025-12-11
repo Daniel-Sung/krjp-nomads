@@ -1,3 +1,94 @@
+// 필터 타입 정의
+export type BudgetFilter = "under100" | "100to200" | "over200";
+
+export type RegionFilter =
+  | "all"
+  | "kr_all" | "kr_capital" | "kr_gyeongsang" | "kr_jeolla" | "kr_gangwon" | "kr_jeju" | "kr_chungcheong"
+  | "jp_all" | "jp_hokkaido" | "jp_tohoku" | "jp_kanto" | "jp_chubu" | "jp_kinki" | "jp_chugoku" | "jp_shikoku" | "jp_kyushu";
+
+export type EnvironmentFilter = "nature" | "urban" | "cafe" | "coworking";
+
+export type SeasonFilter = "spring" | "summer" | "fall" | "winter";
+
+// 필터 옵션 상수
+export const BUDGET_OPTIONS: { value: BudgetFilter; label: string }[] = [
+  { value: "under100", label: "100만원 미만" },
+  { value: "100to200", label: "100~200만원" },
+  { value: "over200", label: "200만원 이상" },
+];
+
+export const REGION_OPTIONS = {
+  all: { value: "all" as const, label: "전체" },
+  korea: [
+    { value: "kr_all" as const, label: "한국 전체" },
+    { value: "kr_capital" as const, label: "수도권" },
+    { value: "kr_gyeongsang" as const, label: "경상도" },
+    { value: "kr_jeolla" as const, label: "전라도" },
+    { value: "kr_gangwon" as const, label: "강원도" },
+    { value: "kr_jeju" as const, label: "제주도" },
+    { value: "kr_chungcheong" as const, label: "충청도" },
+  ],
+  japan: [
+    { value: "jp_all" as const, label: "일본 전체" },
+    { value: "jp_hokkaido" as const, label: "홋카이도 지방" },
+    { value: "jp_tohoku" as const, label: "도호쿠 지방" },
+    { value: "jp_kanto" as const, label: "간토 지방" },
+    { value: "jp_chubu" as const, label: "주부 지방" },
+    { value: "jp_kinki" as const, label: "긴키 지방" },
+    { value: "jp_chugoku" as const, label: "주고쿠 지방" },
+    { value: "jp_shikoku" as const, label: "시코쿠 지방" },
+    { value: "jp_kyushu" as const, label: "규슈·오키나와 지방" },
+  ],
+};
+
+export const ENVIRONMENT_OPTIONS: { value: EnvironmentFilter; label: string }[] = [
+  { value: "nature", label: "자연친화" },
+  { value: "urban", label: "도심선호" },
+  { value: "cafe", label: "카페작업" },
+  { value: "coworking", label: "코워킹 필수" },
+];
+
+export const SEASON_OPTIONS: { value: SeasonFilter; label: string }[] = [
+  { value: "spring", label: "봄" },
+  { value: "summer", label: "여름" },
+  { value: "fall", label: "가을" },
+  { value: "winter", label: "겨울" },
+];
+
+// 지역 값 → 라벨 변환 헬퍼 함수
+export function getRegionLabel(region: RegionFilter): string {
+  if (region === "all") return REGION_OPTIONS.all.label;
+
+  const koreaOption = REGION_OPTIONS.korea.find(opt => opt.value === region);
+  if (koreaOption) return koreaOption.label;
+
+  const japanOption = REGION_OPTIONS.japan.find(opt => opt.value === region);
+  if (japanOption) return japanOption.label;
+
+  return region;
+}
+
+// 예산 값 → 라벨 변환 헬퍼 함수
+export function getBudgetLabel(budget: BudgetFilter | null): string | null {
+  if (!budget) return null;
+  const option = BUDGET_OPTIONS.find(opt => opt.value === budget);
+  return option?.label || null;
+}
+
+// 환경 값 → 라벨 변환 헬퍼 함수
+export function getEnvironmentLabel(environment: EnvironmentFilter | null): string | null {
+  if (!environment) return null;
+  const option = ENVIRONMENT_OPTIONS.find(opt => opt.value === environment);
+  return option?.label || null;
+}
+
+// 계절 값 → 라벨 변환 헬퍼 함수
+export function getSeasonLabel(season: SeasonFilter | null): string | null {
+  if (!season) return null;
+  const option = SEASON_OPTIONS.find(opt => opt.value === season);
+  return option?.label || null;
+}
+
 // 도시 데이터 타입
 export interface City {
   id: string;
@@ -26,40 +117,12 @@ export interface City {
   recommendRate: number;
   description: string;
   tags: string[];
-}
-
-// 리뷰 데이터 타입
-export interface Review {
-  id: string;
-  cityId: string;
-  userId: string;
-  userName: string;
-  userAvatar: string;
-  scores: {
-    cost: number;
-    internet: number;
-    coworking: number;
-    transport: number;
-    healthcare: number;
-    safety: number;
-    english: number;
-    weather: number;
-    food: number;
-    nightlife: number;
-  };
-  comment: string;
-  stayDuration: "1week" | "1month" | "3months" | "6months+";
-  createdAt: string;
-  helpful: number;
-  recommend: boolean;
-}
-
-// 카테고리 타입
-export interface Category {
-  id: string;
-  icon: string;
-  title: string;
-  description: string;
+  budget: BudgetFilter;
+  region: RegionFilter;
+  environment: EnvironmentFilter[];
+  bestSeason: SeasonFilter[];
+  likes: number;
+  dislikes: number;
 }
 
 // 한국 도시 데이터 (10개)
@@ -88,6 +151,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 89,
     description: "대한민국의 수도. 최고의 인프라와 빠른 인터넷",
     tags: ["인프라 최고", "카페 천국", "대중교통"],
+    budget: "over200",
+    region: "kr_capital",
+    environment: ["urban", "cafe", "coworking"],
+    bestSeason: ["spring", "fall"],
+    likes: 304,
+    dislikes: 38,
   },
   {
     id: "busan",
@@ -113,6 +182,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 86,
     description: "해변과 맛있는 음식의 도시. 서울보다 저렴한 물가",
     tags: ["해변", "해산물", "저렴함"],
+    budget: "100to200",
+    region: "kr_gyeongsang",
+    environment: ["nature", "cafe"],
+    bestSeason: ["spring", "fall"],
+    likes: 170,
+    dislikes: 28,
   },
   {
     id: "jeju",
@@ -138,6 +213,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 82,
     description: "아름다운 자연과 여유로운 섬 생활. 노마드 커뮤니티 활발",
     tags: ["자연", "힐링", "노마드 커뮤니티"],
+    budget: "100to200",
+    region: "kr_jeju",
+    environment: ["nature"],
+    bestSeason: ["spring", "summer", "fall"],
+    likes: 128,
+    dislikes: 28,
   },
   {
     id: "daejeon",
@@ -163,6 +244,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 78,
     description: "과학과 IT의 도시. 조용하고 저렴한 생활",
     tags: ["IT 클러스터", "조용함", "저렴함"],
+    budget: "under100",
+    region: "kr_chungcheong",
+    environment: ["urban", "coworking"],
+    bestSeason: ["spring", "fall"],
+    likes: 52,
+    dislikes: 15,
   },
   {
     id: "daegu",
@@ -188,6 +275,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 75,
     description: "따뜻한 날씨와 저렴한 물가의 내륙 도시",
     tags: ["저렴함", "따뜻함", "중간 규모"],
+    budget: "under100",
+    region: "kr_gyeongsang",
+    environment: ["urban", "cafe"],
+    bestSeason: ["spring", "fall"],
+    likes: 34,
+    dislikes: 11,
   },
   {
     id: "gwangju",
@@ -213,6 +306,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 74,
     description: "예술과 문화의 도시. 맛있는 음식과 친절한 사람들",
     tags: ["예술/문화", "맛집", "친절함"],
+    budget: "under100",
+    region: "kr_jeolla",
+    environment: ["urban", "cafe"],
+    bestSeason: ["spring", "fall"],
+    likes: 28,
+    dislikes: 10,
   },
   {
     id: "jeonju",
@@ -238,6 +337,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 80,
     description: "한옥마을과 전통문화의 도시. 비빔밥의 고향",
     tags: ["한옥", "전통문화", "비빔밥"],
+    budget: "under100",
+    region: "kr_jeolla",
+    environment: ["nature", "cafe"],
+    bestSeason: ["spring", "fall"],
+    likes: 42,
+    dislikes: 10,
   },
   {
     id: "gangneung",
@@ -263,6 +368,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 79,
     description: "동해 바다와 커피 거리. 조용한 해변 도시",
     tags: ["해변", "커피", "조용함"],
+    budget: "100to200",
+    region: "kr_gangwon",
+    environment: ["nature", "cafe"],
+    bestSeason: ["summer", "winter"],
+    likes: 38,
+    dislikes: 10,
   },
   {
     id: "suwon",
@@ -288,6 +399,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 81,
     description: "서울 근교 위성도시. 화성과 삼성 본사",
     tags: ["서울 근교", "역사", "IT"],
+    budget: "100to200",
+    region: "kr_capital",
+    environment: ["urban", "coworking"],
+    bestSeason: ["spring", "fall"],
+    likes: 58,
+    dislikes: 14,
   },
   {
     id: "pangyo",
@@ -313,6 +430,12 @@ export const KOREA_CITIES: City[] = [
     recommendRate: 83,
     description: "한국의 실리콘밸리. 스타트업과 IT 기업 밀집",
     tags: ["IT 허브", "스타트업", "테크"],
+    budget: "over200",
+    region: "kr_capital",
+    environment: ["urban", "coworking"],
+    bestSeason: ["spring", "fall"],
+    likes: 74,
+    dislikes: 15,
   },
 ];
 
@@ -342,6 +465,12 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 87,
     description: "일본의 수도. 세계 최대 도시권과 무한한 가능성",
     tags: ["대도시", "문화", "교통 최고"],
+    budget: "over200",
+    region: "jp_kanto",
+    environment: ["urban", "cafe", "coworking"],
+    bestSeason: ["spring", "fall"],
+    likes: 358,
+    dislikes: 54,
   },
   {
     id: "osaka",
@@ -367,6 +496,12 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 88,
     description: "일본의 부엌. 맛있는 음식과 활기찬 분위기",
     tags: ["음식 천국", "활기참", "친근함"],
+    budget: "100to200",
+    region: "jp_kinki",
+    environment: ["urban", "cafe"],
+    bestSeason: ["spring", "fall"],
+    likes: 253,
+    dislikes: 34,
   },
   {
     id: "kyoto",
@@ -392,6 +527,12 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 85,
     description: "천년 고도. 전통과 현대가 조화로운 문화 도시",
     tags: ["전통", "사찰", "조용함"],
+    budget: "100to200",
+    region: "jp_kinki",
+    environment: ["nature", "cafe"],
+    bestSeason: ["spring", "fall"],
+    likes: 168,
+    dislikes: 30,
   },
   {
     id: "fukuoka",
@@ -417,6 +558,12 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 91,
     description: "아시아의 관문. 스타트업 허브로 성장 중인 도시",
     tags: ["스타트업", "라멘", "아시아 허브"],
+    budget: "under100",
+    region: "jp_kyushu",
+    environment: ["urban", "cafe"],
+    bestSeason: ["spring", "fall"],
+    likes: 213,
+    dislikes: 21,
   },
   {
     id: "nagoya",
@@ -442,6 +589,12 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 79,
     description: "제조업의 중심지. 도쿄와 오사카 사이의 실용적인 도시",
     tags: ["제조업", "실용적", "중간 위치"],
+    budget: "100to200",
+    region: "jp_chubu",
+    environment: ["urban", "coworking"],
+    bestSeason: ["spring", "fall"],
+    likes: 77,
+    dislikes: 21,
   },
   {
     id: "sapporo",
@@ -467,6 +620,12 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 82,
     description: "북쪽의 대도시. 시원한 여름과 눈 축제로 유명",
     tags: ["시원함", "눈 축제", "라멘"],
+    budget: "under100",
+    region: "jp_hokkaido",
+    environment: ["nature", "cafe"],
+    bestSeason: ["summer", "winter"],
+    likes: 92,
+    dislikes: 20,
   },
   {
     id: "okinawa",
@@ -492,6 +651,12 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 84,
     description: "열대의 낙원. 아름다운 해변과 독특한 문화",
     tags: ["해변", "리조트", "열대"],
+    budget: "under100",
+    region: "jp_kyushu",
+    environment: ["nature"],
+    bestSeason: ["spring", "summer", "fall"],
+    likes: 122,
+    dislikes: 23,
   },
   {
     id: "kobe",
@@ -517,6 +682,12 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 81,
     description: "국제적인 항구 도시. 세련된 분위기와 고베규",
     tags: ["항구", "국제적", "고베규"],
+    budget: "100to200",
+    region: "jp_kinki",
+    environment: ["nature", "urban"],
+    bestSeason: ["spring", "fall"],
+    likes: 62,
+    dislikes: 14,
   },
   {
     id: "yokohama",
@@ -542,6 +713,12 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 83,
     description: "도쿄 근교의 항구 도시. 차이나타운과 야경",
     tags: ["도쿄 근교", "차이나타운", "야경"],
+    budget: "over200",
+    region: "jp_kanto",
+    environment: ["urban", "coworking"],
+    bestSeason: ["spring", "fall"],
+    likes: 111,
+    dislikes: 23,
   },
   {
     id: "kanazawa",
@@ -567,205 +744,17 @@ export const JAPAN_CITIES: City[] = [
     recommendRate: 86,
     description: "전통과 예술의 도시. 겐로쿠엔 정원과 해산물",
     tags: ["전통", "정원", "해산물"],
+    budget: "under100",
+    region: "jp_chubu",
+    environment: ["nature", "cafe"],
+    bestSeason: ["spring", "winter"],
+    likes: 50,
+    dislikes: 8,
   },
 ];
 
 // 전체 도시 데이터
 export const ALL_CITIES: City[] = [...KOREA_CITIES, ...JAPAN_CITIES];
-
-// 리뷰 샘플 데이터
-export const SAMPLE_REVIEWS: Review[] = [
-  {
-    id: "review_001",
-    cityId: "seoul",
-    userId: "user_001",
-    userName: "DigitalNomad_Mike",
-    userAvatar: "/avatars/mike.jpg",
-    scores: {
-      cost: 3,
-      internet: 5,
-      coworking: 5,
-      transport: 5,
-      healthcare: 5,
-      safety: 4,
-      english: 3,
-      weather: 4,
-      food: 5,
-      nightlife: 5,
-    },
-    comment:
-      "인터넷 속도가 미쳤어요! 카페마다 콘센트가 있고 WiFi도 빠름. 다만 서울 집값이 좀 비싸서 고시원이나 쉐어하우스 추천해요.",
-    stayDuration: "3months",
-    createdAt: "2024-12-05",
-    helpful: 45,
-    recommend: true,
-  },
-  {
-    id: "review_002",
-    cityId: "fukuoka",
-    userId: "user_002",
-    userName: "TechWriter_Sarah",
-    userAvatar: "/avatars/sarah.jpg",
-    scores: {
-      cost: 4,
-      internet: 4,
-      coworking: 4,
-      transport: 4,
-      healthcare: 5,
-      safety: 5,
-      english: 3,
-      weather: 4,
-      food: 5,
-      nightlife: 4,
-    },
-    comment:
-      "아시아 여러 나라 다녀봤는데 후쿠오카가 최고예요. 물가도 적당하고, 한국이랑 가까워서 왔다갔다 하기 좋아요. 라멘이 너무 맛있어서 살찔 것 같아요 ㅋㅋ",
-    stayDuration: "1month",
-    createdAt: "2024-12-03",
-    helpful: 32,
-    recommend: true,
-  },
-  {
-    id: "review_003",
-    cityId: "busan",
-    userId: "user_003",
-    userName: "RemoteDev_Jason",
-    userAvatar: "/avatars/jason.jpg",
-    scores: {
-      cost: 4,
-      internet: 4,
-      coworking: 4,
-      transport: 4,
-      healthcare: 4,
-      safety: 5,
-      english: 3,
-      weather: 5,
-      food: 5,
-      nightlife: 4,
-    },
-    comment:
-      "해운대 근처에서 한 달 살았는데 최고였어요. 아침에 바다 보면서 코딩하고, 저녁에 회 먹고. 서울보다 여유롭고 물가도 착해요.",
-    stayDuration: "1month",
-    createdAt: "2024-12-01",
-    helpful: 28,
-    recommend: true,
-  },
-  {
-    id: "review_004",
-    cityId: "osaka",
-    userId: "user_004",
-    userName: "FreelanceDesigner_Yuki",
-    userAvatar: "/avatars/yuki.jpg",
-    scores: {
-      cost: 4,
-      internet: 5,
-      coworking: 4,
-      transport: 5,
-      healthcare: 5,
-      safety: 4,
-      english: 3,
-      weather: 4,
-      food: 5,
-      nightlife: 5,
-    },
-    comment:
-      "오사카 사람들 너무 친근해요! 도쿄보다 물가 저렴하고, 먹거리가 정말 많아요. 도톤보리 근처 에어비앤비 구하면 위치도 좋고 편리해요.",
-    stayDuration: "3months",
-    createdAt: "2024-11-28",
-    helpful: 51,
-    recommend: true,
-  },
-  {
-    id: "review_005",
-    cityId: "jeju",
-    userId: "user_005",
-    userName: "ContentCreator_Emma",
-    userAvatar: "/avatars/emma.jpg",
-    scores: {
-      cost: 3,
-      internet: 4,
-      coworking: 4,
-      transport: 2,
-      healthcare: 3,
-      safety: 5,
-      english: 2,
-      weather: 5,
-      food: 4,
-      nightlife: 2,
-    },
-    comment:
-      "제주도 노마드 카페들이 정말 잘 되어 있어요! 특히 애월 쪽 카페들. 다만 차가 없으면 이동이 좀 불편해요. 한 달 이상 있을 거면 렌트카 필수!",
-    stayDuration: "1month",
-    createdAt: "2024-11-25",
-    helpful: 38,
-    recommend: true,
-  },
-  {
-    id: "review_006",
-    cityId: "tokyo",
-    userId: "user_006",
-    userName: "StartupFounder_Alex",
-    userAvatar: "/avatars/alex.jpg",
-    scores: {
-      cost: 3,
-      internet: 5,
-      coworking: 5,
-      transport: 5,
-      healthcare: 5,
-      safety: 5,
-      english: 4,
-      weather: 4,
-      food: 5,
-      nightlife: 5,
-    },
-    comment:
-      "도쿄는 뭐든지 있어요. 코워킹 스페이스도 많고, 밤늦게까지 열어요. 시부야나 신주쿠 쪽에 WeWork 많이 있어요. 비싸긴 한데 그만한 가치가 있어요.",
-    stayDuration: "6months+",
-    createdAt: "2024-11-20",
-    helpful: 67,
-    recommend: true,
-  },
-];
-
-// 카테고리 데이터
-export const CATEGORIES: Category[] = [
-  {
-    id: "cost",
-    icon: "💰",
-    title: "가성비 최고",
-    description: "저렴한 생활비로 편하게",
-  },
-  {
-    id: "internet",
-    icon: "📶",
-    title: "인터넷 최강",
-    description: "초고속 안정적인 인터넷",
-  },
-  {
-    id: "coworking",
-    icon: "☕",
-    title: "카페 천국",
-    description: "작업하기 좋은 카페 많은 곳",
-  },
-  {
-    id: "safety",
-    icon: "🔒",
-    title: "안전 1순위",
-    description: "치안 좋고 안전한 도시",
-  },
-  {
-    id: "food",
-    icon: "🍜",
-    title: "맛집 투어",
-    description: "맛있는 음식 가득한 도시",
-  },
-  {
-    id: "nature",
-    icon: "🏖️",
-    title: "자연 속에서",
-    description: "해변, 산 등 자연환경 좋은 곳",
-  },
-];
 
 // 통계 데이터
 export const STATS = {
@@ -776,77 +765,26 @@ export const STATS = {
 };
 
 // 유틸리티 함수들
-export function formatCurrency(amount: number, currency: "KRW" | "JPY"): string {
-  if (currency === "KRW") {
-    return `₩${(amount / 10000).toFixed(0)}만`;
-  } else {
-    return `¥${(amount / 10000).toFixed(0)}万`;
-  }
-}
-
-export function formatCurrencyFull(amount: number, currency: "KRW" | "JPY"): string {
-  if (currency === "KRW") {
-    return `₩${amount.toLocaleString()}`;
-  } else {
-    return `¥${amount.toLocaleString()}`;
-  }
-}
-
 export function getCountryFlag(country: "KR" | "JP"): string {
   return country === "KR" ? "🇰🇷" : "🇯🇵";
 }
 
-export function getCountryName(country: "KR" | "JP"): string {
-  return country === "KR" ? "한국" : "일본";
-}
-
-export function getStayDurationText(duration: string): string {
-  const map: Record<string, string> = {
-    "1week": "1주",
-    "1month": "1개월",
-    "3months": "3개월",
-    "6months+": "6개월+",
-  };
-  return map[duration] || duration;
-}
-
-export function getRelativeTime(dateString: string): string {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-
-  if (diffDays === 0) return "오늘";
-  if (diffDays === 1) return "어제";
-  if (diffDays < 7) return `${diffDays}일 전`;
-  if (diffDays < 30) return `${Math.floor(diffDays / 7)}주 전`;
-  if (diffDays < 365) return `${Math.floor(diffDays / 30)}개월 전`;
-  return `${Math.floor(diffDays / 365)}년 전`;
-}
-
-// 도시 데이터 접근 함수들
+// 도시 ID로 도시 데이터 조회
 export function getCityById(id: string): City | undefined {
   return ALL_CITIES.find((city) => city.id === id);
 }
 
-export function getTopCities(count: number = 8): City[] {
-  return [...ALL_CITIES].sort((a, b) => b.scores.overall - a.scores.overall).slice(0, count);
-}
-
-export function getTopCitiesByCountry(country: "KR" | "JP", count: number = 5): City[] {
-  const cities = country === "KR" ? KOREA_CITIES : JAPAN_CITIES;
-  return [...cities].sort((a, b) => b.scores.overall - a.scores.overall).slice(0, count);
-}
-
-export function getCitiesByCategory(categoryId: string, count: number = 4): City[] {
-  const scoreKey = categoryId as keyof City["scores"];
-  if (!ALL_CITIES[0].scores.hasOwnProperty(scoreKey)) {
-    return getTopCities(count);
-  }
-  return [...ALL_CITIES].sort((a, b) => b.scores[scoreKey] - a.scores[scoreKey]).slice(0, count);
-}
-
-export function getRecentReviews(count: number = 3): Review[] {
-  return [...SAMPLE_REVIEWS]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, count);
-}
+// 점수 카테고리 라벨
+export const SCORE_LABELS: Record<keyof City["scores"], string> = {
+  overall: "종합 점수",
+  cost: "생활비",
+  internet: "인터넷",
+  coworking: "코워킹",
+  transport: "대중교통",
+  healthcare: "의료",
+  safety: "안전",
+  english: "영어 소통",
+  weather: "날씨",
+  food: "음식",
+  nightlife: "나이트라이프",
+};

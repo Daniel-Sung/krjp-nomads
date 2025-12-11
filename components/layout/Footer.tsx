@@ -1,44 +1,12 @@
 import Link from "next/link";
 import { Github, Twitter, Instagram, Mail } from "lucide-react";
 
-const footerLinks = {
-  explore: {
-    title: "도시 탐색",
-    links: [
-      { href: "/cities/korea", label: "한국 도시" },
-      { href: "/cities/japan", label: "일본 도시" },
-      { href: "/ranking", label: "전체 랭킹" },
-      { href: "/compare", label: "도시 비교" },
-    ],
-  },
-  community: {
-    title: "커뮤니티",
-    links: [
-      { href: "/reviews", label: "리뷰 보기" },
-      { href: "/write-review", label: "리뷰 작성" },
-      { href: "/meetups", label: "밋업" },
-      { href: "/forum", label: "포럼" },
-    ],
-  },
-  resources: {
-    title: "실용 정보",
-    links: [
-      { href: "/visa", label: "비자 정보" },
-      { href: "/coworking", label: "코워킹 스페이스" },
-      { href: "/housing", label: "숙소 가이드" },
-      { href: "/tips", label: "노마드 팁" },
-    ],
-  },
-  about: {
-    title: "서비스",
-    links: [
-      { href: "/about", label: "소개" },
-      { href: "/contact", label: "문의하기" },
-      { href: "/privacy", label: "개인정보처리방침" },
-      { href: "/terms", label: "이용약관" },
-    ],
-  },
-};
+const serviceLinks = [
+  { href: "/about", label: "소개" },
+  { href: "/contact", label: "문의하기" },
+  { href: "/privacy", label: "개인정보처리방침" },
+  { href: "/terms", label: "이용약관" },
+];
 
 const socialLinks = [
   { href: "https://twitter.com", icon: Twitter, label: "Twitter" },
@@ -52,9 +20,9 @@ export default function Footer() {
     <footer className="bg-slate-900 text-slate-300">
       <div className="container mx-auto px-4 py-12">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {/* Brand Section */}
-          <div className="col-span-2 md:col-span-1">
+          <div>
             <Link href="/" className="flex items-center gap-2 mb-4">
               <span className="text-xl">🇰🇷</span>
               <span className="text-xl">🇯🇵</span>
@@ -79,24 +47,22 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Links Sections */}
-          {Object.entries(footerLinks).map(([key, section]) => (
-            <div key={key}>
-              <h3 className="font-semibold text-white mb-4">{section.title}</h3>
-              <ul className="space-y-2">
-                {section.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="text-sm text-slate-400 hover:text-white transition-colors"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          {/* Service Links Section */}
+          <div>
+            <h3 className="font-semibold text-white mb-4">서비스</h3>
+            <ul className="space-y-2">
+              {serviceLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-sm text-slate-400 hover:text-white transition-colors"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         {/* Divider */}

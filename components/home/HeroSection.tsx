@@ -1,8 +1,59 @@
-import { Search, MapPin, ArrowRight } from "lucide-react";
+"use client";
+
+import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+} from "@/components/ui/select";
+import {
+  BudgetFilter,
+  RegionFilter,
+  EnvironmentFilter,
+  SeasonFilter,
+  BUDGET_OPTIONS,
+  REGION_OPTIONS,
+  ENVIRONMENT_OPTIONS,
+  SEASON_OPTIONS,
+  getRegionLabel,
+  getBudgetLabel,
+  getEnvironmentLabel,
+  getSeasonLabel,
+} from "@/lib/constants";
 
-export default function HeroSection() {
+export interface FilterState {
+  budget: BudgetFilter | null;
+  region: RegionFilter;
+  environment: EnvironmentFilter | null;
+  season: SeasonFilter | null;
+}
+
+interface HeroSectionProps {
+  filters: FilterState;
+  onFiltersChange: (filters: FilterState) => void;
+}
+
+export default function HeroSection({ filters, onFiltersChange }: HeroSectionProps) {
+  const handleReset = () => {
+    onFiltersChange({
+      budget: null,
+      region: "all",
+      environment: null,
+      season: null,
+    });
+  };
+
+  const hasActiveFilters =
+    filters.budget !== null ||
+    filters.region !== "all" ||
+    filters.environment !== null ||
+    filters.season !== null;
+
   return (
     <section className="relative bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white overflow-hidden">
       {/* Background Pattern */}
@@ -34,69 +85,119 @@ export default function HeroSection() {
             나에게 맞는 도시를 찾아보세요
           </p>
 
-          {/* Search Box */}
-          <div className="bg-white rounded-xl p-2 shadow-2xl max-w-2xl mx-auto mb-8">
-            <div className="flex flex-col md:flex-row gap-2">
-              <div className="flex-1 flex items-center gap-2 px-4 py-3 bg-slate-50 rounded-lg">
-                <Search className="h-5 w-5 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="도시명 검색 (서울, 도쿄, 부산...)"
-                  className="flex-1 bg-transparent outline-none text-slate-900 placeholder:text-slate-400"
-                />
-              </div>
-              <div className="flex items-center gap-2 px-4 py-3 bg-slate-50 rounded-lg md:w-40">
-                <MapPin className="h-5 w-5 text-slate-400" />
-                <select className="flex-1 bg-transparent outline-none text-slate-900 cursor-pointer">
-                  <option value="all">전체</option>
-                  <option value="KR">한국</option>
-                  <option value="JP">일본</option>
-                </select>
-              </div>
-              <Button className="bg-blue-600 hover:bg-blue-700 px-8 py-6 md:py-3">
-                검색
+          {/* Filter Box */}
+          <div className="bg-white rounded-xl p-4 shadow-2xl max-w-4xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {/* Budget Filter */}
+              <Select
+                value={filters.budget || ""}
+                onValueChange={(value: string) =>
+                  onFiltersChange({ ...filters, budget: value as BudgetFilter || null })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <span className="truncate">
+                    {filters.budget ? `💰 ${getBudgetLabel(filters.budget)}` : "💰 예산"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {BUDGET_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Region Filter */}
+              <Select
+                value={filters.region}
+                onValueChange={(value: string) =>
+                  onFiltersChange({ ...filters, region: value as RegionFilter })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <span className="truncate">
+                    {filters.region === "all" ? "📍 지역" : `📍 ${getRegionLabel(filters.region)}`}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={REGION_OPTIONS.all.value}>
+                    {REGION_OPTIONS.all.label}
+                  </SelectItem>
+                  <SelectGroup>
+                    <SelectLabel>🇰🇷 한국</SelectLabel>
+                    {REGION_OPTIONS.korea.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                  <SelectGroup>
+                    <SelectLabel>🇯🇵 일본</SelectLabel>
+                    {REGION_OPTIONS.japan.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+
+              {/* Environment Filter */}
+              <Select
+                value={filters.environment || ""}
+                onValueChange={(value: string) =>
+                  onFiltersChange({ ...filters, environment: value as EnvironmentFilter || null })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <span className="truncate">
+                    {filters.environment ? `🌿 ${getEnvironmentLabel(filters.environment)}` : "🌿 환경"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {ENVIRONMENT_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Season Filter */}
+              <Select
+                value={filters.season || ""}
+                onValueChange={(value: string) =>
+                  onFiltersChange({ ...filters, season: value as SeasonFilter || null })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <span className="truncate">
+                    {filters.season ? `🗓️ ${getSeasonLabel(filters.season)}` : "🗓️ 계절"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {SEASON_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Reset Button */}
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                disabled={!hasActiveFilters}
+                className="w-full"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                초기화
               </Button>
             </div>
           </div>
-
-          {/* Quick Links */}
-          <div className="flex flex-wrap justify-center gap-3">
-            <Badge
-              variant="secondary"
-              className="bg-white/10 text-white hover:bg-white/20 cursor-pointer px-4 py-2"
-            >
-              🔥 인기: 서울
-            </Badge>
-            <Badge
-              variant="secondary"
-              className="bg-white/10 text-white hover:bg-white/20 cursor-pointer px-4 py-2"
-            >
-              🔥 인기: 도쿄
-            </Badge>
-            <Badge
-              variant="secondary"
-              className="bg-white/10 text-white hover:bg-white/20 cursor-pointer px-4 py-2"
-            >
-              💰 가성비: 후쿠오카
-            </Badge>
-            <Badge
-              variant="secondary"
-              className="bg-white/10 text-white hover:bg-white/20 cursor-pointer px-4 py-2"
-            >
-              🏖️ 휴양: 제주
-            </Badge>
-          </div>
-        </div>
-
-        {/* CTA Button */}
-        <div className="text-center mt-10">
-          <Button
-            variant="outline"
-            className="border-white/50 text-white hover:bg-white/10 group"
-          >
-            전체 도시 보기
-            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
         </div>
       </div>
 

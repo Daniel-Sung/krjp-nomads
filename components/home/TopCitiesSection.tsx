@@ -1,12 +1,43 @@
-import Link from "next/link";
-import { ArrowRight, TrendingUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+"use client";
+
+import { TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import CityCard from "@/components/shared/CityCard";
-import { getTopCities } from "@/lib/constants";
+import { ALL_CITIES, City, BudgetFilter, RegionFilter } from "@/lib/constants";
+import { FilterState } from "./HeroSection";
 
-export default function TopCitiesSection() {
-  const topCities = getTopCities(8);
+interface TopCitiesSectionProps {
+  filters: FilterState;
+}
+
+function matchBudget(city: City, budget: BudgetFilter): boolean {
+  return city.budget === budget;
+}
+
+function matchRegion(city: City, region: RegionFilter): boolean {
+  if (region === "all") return true;
+  if (region === "kr_all") return city.country === "KR";
+  if (region === "jp_all") return city.country === "JP";
+  return city.region === region;
+}
+
+function filterCities(cities: City[], filters: FilterState): City[] {
+  return cities.filter((city) => {
+    // Budget filter
+    if (filters.budget && !matchBudget(city, filters.budget)) return false;
+    // Region filter
+    if (filters.region !== "all" && !matchRegion(city, filters.region)) return false;
+    // Environment filter
+    if (filters.environment && !city.environment.includes(filters.environment)) return false;
+    // Season filter
+    if (filters.season && !city.bestSeason.includes(filters.season)) return false;
+    return true;
+  });
+}
+
+export default function TopCitiesSection({ filters }: TopCitiesSectionProps) {
+  const filteredCities = filterCities(ALL_CITIES, filters);
+  const sortedCities = [...filteredCities].sort((a, b) => b.likes - a.likes);
 
   return (
     <section className="py-16 bg-white">
@@ -17,47 +48,35 @@ export default function TopCitiesSection() {
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="h-5 w-5 text-blue-600" />
               <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                TOP 8
+                {sortedCities.length}개 도시
               </Badge>
             </div>
             <h2 className="text-3xl font-bold text-slate-900 mb-2">
-              인기 도시 TOP 8
+              도시 리스트
             </h2>
             <p className="text-slate-600">
-              노마드들이 가장 많이 찾는 한국과 일본의 인기 도시
+              모든 도시를 좋아요 순으로 확인해보세요
             </p>
-          </div>
-
-          {/* Filter Tabs */}
-          <div className="flex gap-2 mt-4 md:mt-0">
-            <Button variant="default" size="sm" className="bg-slate-900">
-              전체
-            </Button>
-            <Button variant="outline" size="sm">
-              🇰🇷 한국
-            </Button>
-            <Button variant="outline" size="sm">
-              🇯🇵 일본
-            </Button>
           </div>
         </div>
 
         {/* City Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          {topCities.map((city, index) => (
-            <CityCard key={city.id} city={city} rank={index + 1} />
-          ))}
-        </div>
-
-        {/* View All Button */}
-        <div className="text-center">
-          <Link href="/cities">
-            <Button variant="outline" size="lg" className="group">
-              전체 20개 도시 보기
-              <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-            </Button>
-          </Link>
-        </div>
+        {sortedCities.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {sortedCities.map((city) => (
+              <CityCard key={city.id} city={city} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <p className="text-slate-500 text-lg">
+              선택한 필터에 맞는 도시가 없습니다.
+            </p>
+            <p className="text-slate-400 mt-2">
+              필터 조건을 변경해 보세요.
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );

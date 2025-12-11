@@ -1,6 +1,9 @@
-import { MapPin, MessageSquare, Users, Globe } from "lucide-react";
+import { MapPin, ThumbsUp, Users, Globe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { STATS } from "@/lib/constants";
+import { STATS, ALL_CITIES } from "@/lib/constants";
+
+// 총 좋아요 수 계산
+const totalLikes = ALL_CITIES.reduce((sum, city) => sum + city.likes, 0);
 
 const stats = [
   {
@@ -12,10 +15,10 @@ const stats = [
     bgColor: "bg-blue-100",
   },
   {
-    icon: MessageSquare,
-    value: STATS.totalReviews.toLocaleString(),
-    label: "리뷰",
-    description: "실제 노마드들의 후기",
+    icon: ThumbsUp,
+    value: totalLikes.toLocaleString(),
+    label: "총 좋아요",
+    description: "노마드들의 추천",
     color: "text-green-600",
     bgColor: "bg-green-100",
   },
