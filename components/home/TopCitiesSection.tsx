@@ -3,41 +3,46 @@
 import { TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import CityCard from "@/components/shared/CityCard";
-import { ALL_CITIES, City, BudgetFilter, RegionFilter } from "@/lib/constants";
+import { BudgetFilter, RegionFilter } from "@/lib/constants";
 import { FilterState } from "./HeroSection";
+import { type CityWithAllDetails } from "@/lib/supabase/cities";
 
 interface TopCitiesSectionProps {
   filters: FilterState;
+  cities: CityWithAllDetails[];
 }
 
-function matchBudget(city: City, budget: BudgetFilter): boolean {
+function matchBudget(city: CityWithAllDetails, budget: BudgetFilter): boolean {
   return city.budget === budget;
 }
 
-function matchRegion(city: City, region: RegionFilter): boolean {
+function matchRegion(city: CityWithAllDetails, region: RegionFilter): boolean {
   if (region === "all") return true;
-  if (region === "kr_all") return city.country === "KR";
-  if (region === "jp_all") return city.country === "JP";
-  return city.region === region;
+  if (region === "kr_all") return city.country_id === "KR";
+  if (region === "jp_all") return city.country_id === "JP";
+  return city.region_id === region;
 }
 
-function filterCities(cities: City[], filters: FilterState): City[] {
+function filterCities(cities: CityWithAllDetails[], filters: FilterState): CityWithAllDetails[] {
   return cities.filter((city) => {
     // Budget filter
     if (filters.budget && !matchBudget(city, filters.budget)) return false;
     // Region filter
     if (filters.region !== "all" && !matchRegion(city, filters.region)) return false;
     // Environment filter
-    if (filters.environment && !city.environment.includes(filters.environment)) return false;
+    if (filters.environment && city.environment && !city.environment.includes(filters.environment)) return false;
     // Season filter
-    if (filters.season && !city.bestSeason.includes(filters.season)) return false;
+    if (filters.season && city.best_season && !city.best_season.includes(filters.season)) return false;
     return true;
   });
 }
 
-export default function TopCitiesSection({ filters }: TopCitiesSectionProps) {
-  const filteredCities = filterCities(ALL_CITIES, filters);
-  const sortedCities = [...filteredCities].sort((a, b) => b.likes - a.likes);
+export default function TopCitiesSection({ filters, cities }: TopCitiesSectionProps) {
+  const filteredCities = filterCities(cities, filters);
+  // Sort by overall score (descending)
+  const sortedCities = [...filteredCities].sort((a, b) =>
+    (b.city_scores?.overall ?? 0) - (a.city_scores?.overall ?? 0)
+  );
 
   return (
     <section className="py-16 bg-white">

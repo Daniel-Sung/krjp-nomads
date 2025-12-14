@@ -1,46 +1,45 @@
 import { MapPin, ThumbsUp, Users, Globe } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { STATS, ALL_CITIES } from "@/lib/constants";
 
-// 총 좋아요 수 계산
-const totalLikes = ALL_CITIES.reduce((sum, city) => sum + city.likes, 0);
+interface StatsSectionProps {
+  totalCities: number;
+}
 
-const stats = [
-  {
-    icon: MapPin,
-    value: STATS.totalCities,
-    label: "도시",
-    description: "한국 10곳 + 일본 10곳",
-    color: "text-blue-600",
-    bgColor: "bg-blue-100",
-  },
-  {
-    icon: ThumbsUp,
-    value: totalLikes.toLocaleString(),
-    label: "총 좋아요",
-    description: "노마드들의 추천",
-    color: "text-green-600",
-    bgColor: "bg-green-100",
-  },
-  {
-    icon: Users,
-    value: STATS.activeNomads.toLocaleString(),
-    label: "활동 노마드",
-    description: "지난 30일 기준",
-    color: "text-amber-600",
-    bgColor: "bg-amber-100",
-  },
-  {
-    icon: Globe,
-    value: STATS.countries,
-    label: "국가",
-    description: "한국 & 일본 특화",
-    color: "text-purple-600",
-    bgColor: "bg-purple-100",
-  },
-];
-
-export default function StatsSection() {
+export default function StatsSection({ totalCities }: StatsSectionProps) {
+  const stats = [
+    {
+      icon: MapPin,
+      value: totalCities,
+      label: "도시",
+      description: "한국 10곳 + 일본 10곳",
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
+    },
+    {
+      icon: ThumbsUp,
+      value: "-",
+      label: "총 좋아요",
+      description: "노마드들의 추천",
+      color: "text-green-600",
+      bgColor: "bg-green-100",
+    },
+    {
+      icon: Users,
+      value: "-",
+      label: "활동 노마드",
+      description: "지난 30일 기준",
+      color: "text-amber-600",
+      bgColor: "bg-amber-100",
+    },
+    {
+      icon: Globe,
+      value: 2,
+      label: "국가",
+      description: "한국 & 일본 특화",
+      color: "text-purple-600",
+      bgColor: "bg-purple-100",
+    },
+  ];
   return (
     <section className="py-12 bg-slate-50">
       <div className="container mx-auto px-4">
